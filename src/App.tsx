@@ -8,7 +8,12 @@ function App() {
     <div>
       <Button>버튼!</Button>
       <div className="text-primary">Primary</div>
-      <div className={cn(isActive ? "text-green-500" : "text-red-500")}>
+      <div
+        className={cn(
+          "w-10 text-xl",
+          isActive ? "text-green-500" : "text-red-500",
+        )}
+      >
         isActive
       </div>
       <div className="text-muted">Muted</div>
