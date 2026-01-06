@@ -1,5 +1,10 @@
 import { create } from "zustand";
-import { combine, subscribeWithSelector } from "zustand/middleware";
+import {
+  combine,
+  createJSONStorage,
+  persist,
+  subscribeWithSelector,
+} from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 // combine을 사용하는 이유:
@@ -10,36 +15,58 @@ import { immer } from "zustand/middleware/immer";
 // set((state) => state.count++); 를 사용할 수 있다 (속성애 직접 접근해서 값 변경 가능)
 
 /* 
-subscribeWithSelector
+# subscribeWithSelector
 : useEffect같은 기능
 사용자가 로그아웃 해서 세션을 보관하는 store의 값이 바뀌었을 때 다시 로그인페이지로 이동하게할 때 많이 사용 (side effect)
+
+
+# persist(스토어, {name, partialize, storage})
+: 브라우저 로컬 스토리지에 보관하는 기능
+: 두번째 인수로 객체를 전달해야 한다
+-> 어떤 이름으로 저장할 것인가
+
+로컬 스토리지에 저장 시 json형식으로 저장되기 때문에 자바스크립트인
+actions안의 함수들은 저장되지 않는다
+=> 새로고침하면 함수들이 사라져서 어떤 동작도 일어나지 않는다
+=> 그래서 partialize로 어떤 걸 저장할지 지정한다
+
+storage: 로컬 스토리지 대신에 세션 스토리지에 저장하도록 하는 옵션
 
 */
 
 export const useCountStore = create(
-  subscribeWithSelector(
-    immer(
-      combine({ count: 0 }, (set, get) => ({
-        actions: {
-          increaseOne: () => {
-            // const count = get().count;
-            // set({ count: count + 1 });
+  persist(
+    subscribeWithSelector(
+      immer(
+        combine({ count: 0 }, (set, get) => ({
+          actions: {
+            increaseOne: () => {
+              // const count = get().count;
+              // set({ count: count + 1 });
 
-            // set((state) => ({ count: state.count + 1 }));
+              // set((state) => ({ count: state.count + 1 }));
 
-            set((state) => {
-              state.count += 1;
-            });
+              set((state) => {
+                state.count += 1;
+              });
+            },
+            decreaseOne: () => {
+              // set((state) => ({ count: state.count - 1 }));
+              set((state) => {
+                state.count -= 1;
+              });
+            },
           },
-          decreaseOne: () => {
-            // set((state) => ({ count: state.count - 1 }));
-            set((state) => {
-              state.count -= 1;
-            });
-          },
-        },
-      })),
+        })),
+      ),
     ),
+    {
+      name: "countStore",
+      partialize: (store) => ({
+        count: store.count,
+      }),
+      storage: createJSONStorage(() => sessionStorage),
+    },
   ),
 );
 
