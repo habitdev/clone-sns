@@ -2,6 +2,7 @@ import { create } from "zustand";
 import {
   combine,
   createJSONStorage,
+  devtools,
   persist,
   subscribeWithSelector,
 } from "zustand/middleware";
@@ -32,41 +33,51 @@ actions안의 함수들은 저장되지 않는다
 
 storage: 로컬 스토리지 대신에 세션 스토리지에 저장하도록 하는 옵션
 
+# devtools
+디버깅 툴
+두번째 인수에 어떤 걸 디버깅할지 스토어의 이름을 넣어준다
+
+
+**middleware는 적용하는 순서가 중요하므로 아래의 순서로 적용하는 걸 기억하자**
+
 */
 
 export const useCountStore = create(
-  persist(
-    subscribeWithSelector(
-      immer(
-        combine({ count: 0 }, (set, get) => ({
-          actions: {
-            increaseOne: () => {
-              // const count = get().count;
-              // set({ count: count + 1 });
+  devtools(
+    persist(
+      subscribeWithSelector(
+        immer(
+          combine({ count: 0 }, (set, get) => ({
+            actions: {
+              increaseOne: () => {
+                // const count = get().count;
+                // set({ count: count + 1 });
 
-              // set((state) => ({ count: state.count + 1 }));
+                // set((state) => ({ count: state.count + 1 }));
 
-              set((state) => {
-                state.count += 1;
-              });
+                set((state) => {
+                  state.count += 1;
+                });
+              },
+              decreaseOne: () => {
+                // set((state) => ({ count: state.count - 1 }));
+                set((state) => {
+                  state.count -= 1;
+                });
+              },
             },
-            decreaseOne: () => {
-              // set((state) => ({ count: state.count - 1 }));
-              set((state) => {
-                state.count -= 1;
-              });
-            },
-          },
-        })),
+          })),
+        ),
       ),
+      {
+        name: "countStore",
+        partialize: (store) => ({
+          count: store.count,
+        }),
+        storage: createJSONStorage(() => sessionStorage),
+      },
     ),
-    {
-      name: "countStore",
-      partialize: (store) => ({
-        count: store.count,
-      }),
-      storage: createJSONStorage(() => sessionStorage),
-    },
+    { name: "countStore" },
   ),
 );
 
