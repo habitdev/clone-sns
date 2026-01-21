@@ -1,3 +1,4 @@
+import TodoDetailPage from "@/pages/todo-detail-page";
 import { Outlet, Route, Routes } from "react-router";
 import "./App.css";
 import CounterPage from "./pages/counter-page";
@@ -21,6 +22,7 @@ function App() {
       <Route path="/" element={<IndexPage />} />
       <Route path="/counter" element={<CounterPage />} />
       <Route path="/todolist" element={<TodoListPage />} />
+      <Route path="/todolist/:id" element={<TodoDetailPage />} />
       <Route element={<AuthLayout />}>
         <Route path="/sign-in" element={<SignInPage />} />
         <Route path="/sign-up" element={<SignUpPage />} />
