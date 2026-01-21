@@ -14,10 +14,10 @@ const useTodosStore = create(
         createTodo: (content: string) => {
           set((state) => {
             // immer를 적용했기때문에 push메서드도 사용가능하다
-            state.todos.push({ id: new Date().getTime(), content });
+            state.todos.push({ id: String(new Date().getTime()), content });
           });
         },
-        deleteTodo: (targetId: number) => {
+        deleteTodo: (targetId: string) => {
           set((state) => {
             state.todos = state.todos.filter((todo) => todo.id !== targetId);
           });

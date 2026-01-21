@@ -82,6 +82,20 @@ useQuery({
 });
 ```
 
+**useQuery**
+데이터를 가져오는 것만 가능하다
+
+**useMutation**
+데이터를 변경(조작/수정)하는 것만 가능하다
+isPending: mutation 함수로 호풀한 비동기 상태의 로딩 상태를 알 수 있다
+
+```ts
+onMutate: () => {}, // 요청이 시작될 때
+onSettled: () => {}, // 요청이 완료될 때
+onSuccess: () => {}, // 요청이 성공했을 떼
+onError: () => {}, // 요청이 실패했을 떼
+```
+
 **queryKey**
 
 - 쿼리를 식별하는 고유한 키
