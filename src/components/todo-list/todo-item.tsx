@@ -13,7 +13,11 @@ export default function TodoItem({ id, content, isDone }: Todo) {
   return (
     <div className="flex items-center justify-between border p-2">
       <div className="flex gap-5">
-        <Input type="checkbox" checked={isDone} onClick={handleCheckboxClick} />
+        <Input
+          type="checkbox"
+          checked={isDone}
+          onChange={handleCheckboxClick}
+        />
         <Link to={`/todolist/${id}`}>{content}</Link>
       </div>
       <Button onClick={handleDeleteClick} variant={"destructive"}>

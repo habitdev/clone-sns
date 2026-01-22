@@ -93,8 +93,16 @@ isPending: mutation 함수로 호풀한 비동기 상태의 로딩 상태를 알
 onMutate: () => {}, // 요청이 시작될 때
 onSettled: () => {}, // 요청이 완료될 때
 onSuccess: () => {}, // 요청이 성공했을 떼
-onError: () => {}, // 요청이 실패했을 떼
+onError: (error, variables, context) => {}, // 요청이 실패했을 떼
+// error: 현재 발생한 에러에 대한 에러 객체
+// variables: onMutate을 호출할 때 전달한 매개변수를 받아온다
+// context: onMutate에서 반환하도록 설정한 값이 들어온다
+
 ```
+
+**cancelQueries**
+쿼리를 취소한다
+비동기 통신이므로 앞에 await를 붙여줘야 한다
 
 **queryKey**
 
