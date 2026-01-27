@@ -8,39 +8,39 @@ export default function useUpdateTodoMutation() {
   return useMutation({
     mutationFn: updateTodo,
     onMutate: async (updatedTodo) => {
+      // 중복 요청 방지를 위해 이전에 요청한 내역을 취소한다
       await queryClient.cancelQueries({
-        queryKey: QUERY_KEYS.todo.list,
-      });
-      // 낙관적 업데이트 중에 다시 조회하는 경우 데이터의 값이 꼬일 수 있으므로
-      // 업데이트가 완전히 종료되기 전에 조회하는 요청이 들어올 경우 이 요청을 취소시킨다
-
-      const prevTodos = queryClient.getQueryData<Todo[]>(QUERY_KEYS.todo.list);
-      queryClient.setQueryData<Todo[]>(QUERY_KEYS.todo.list, (prevTodos) => {
-        if (!prevTodos) return [];
-        return prevTodos.map((prevTodo) =>
-          prevTodo.id === updatedTodo.id
-            ? { ...prevTodo, ...updatedTodo }
-            : prevTodo,
-        );
+        queryKey: QUERY_KEYS.todo.detail(updatedTodo.id),
       });
 
-      return { prevTodos };
+      const prevTodo = queryClient.getQueryData<Todo>(
+        QUERY_KEYS.todo.detail(updatedTodo.id),
+      );
+
+      queryClient.setQueryData<Todo>(
+        QUERY_KEYS.todo.detail(updatedTodo.id),
+        (prevTodo) => {
+          if (!prevTodo) return;
+          return { ...prevTodo, ...updatedTodo };
+        },
+      );
+
+      // 오류 발생 시 기존 값으로 다시 되돌리기 위해 기존 값 return
+      return {
+        prevTodo,
+      };
     },
     onError: (error, variables, context) => {
       // 낙관적 업데이트를 하고 요청이 실패했을 경우 원래 데이터로 적용해준다
-      if (context && context.prevTodos) {
-        queryClient.setQueryData<Todo[]>(
-          QUERY_KEYS.todo.list,
-          context.prevTodos,
+      if (context && context.prevTodo) {
+        queryClient.setQueryData<Todo>(
+          QUERY_KEYS.todo.detail(context.prevTodo.id),
+          context.prevTodo,
         );
       }
     },
-    onSettled: () => {
-      // 서버와 동일한 데이터가 동일한지(무결성) 확인하기 위해 다시 조회한다
-      // 캐시를 지워서 리페칭 시킨다
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.todo.list,
-      });
-    },
   });
 }
+
+// onSettled에서 캐시를 무효화해도 detail의 캐시는 disabled이므로 다시 불러오지 않는다
+// 따라서 삭제
